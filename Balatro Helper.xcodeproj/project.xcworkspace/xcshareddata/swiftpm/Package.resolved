@@ -1,0 +1,15 @@
+{
+  "originHash" : "963dae81bbd7c98bb5ca3ac76e11f438806a41b6cdd6f56a2cb83d0017c7a1cd",
+  "pins" : [
+    {
+      "identity" : "luaswift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/tomsci/LuaSwift",
+      "state" : {
+        "revision" : "9150f65ddebf9df2cdd74ef93b91b90a16aa482d",
+        "version" : "0.3.0"
+      }
+    }
+  ],
+  "version" : 3
+}
