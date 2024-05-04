@@ -10,9 +10,11 @@ import Foundation
 struct Card: Equatable {
     let suite: Suit
     let cardType: CardType
-    let value: Int
+    let rank: Int {
+        cardType.rank
+    }
     let modifiers: [Modifier]
-
+    
     var chips: Double { 0 }
     var chipMultiplier: Double { 1.0 }
     var multMultiplier: Double { 1.0 }
@@ -40,6 +42,14 @@ struct Card: Equatable {
         case queen
         case king
         case stone
+        
+        var rank: Int {
+            0
+        }
+
+        var chips: Int {
+            0
+        }
 
         var isFaceCard: Bool {
             false

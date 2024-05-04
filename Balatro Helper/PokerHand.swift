@@ -14,7 +14,7 @@ protocol PokerHandRecognizer {
 struct HighCardRecognizer: PokerHandRecognizer {
 
     func hand(_ cards: [Card]) -> [Card]? {
-        if let highCard = cards.max(by: { $0.value < $1.value }) {
+        if let highCard = cards.max(by: { $0.rank < $1.rank }) {
             [highCard]
         } else {
             nil
