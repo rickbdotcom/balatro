@@ -33,7 +33,7 @@ struct EditSave: ParsableCommand {
             jkrDictionary["GAME"] = game
         }
 
-        try tjkrDictionary
+        try jkrDictionary 
             .convertToLua()
             .data(using: .utf8)?
             .compress()?
