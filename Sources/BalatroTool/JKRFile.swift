@@ -39,7 +39,7 @@ extension Dictionary where Key == AnyHashable, Value == Any {
     }
 
     func convertToLua() -> String {
-        "return \(luaRepresentation())"
+        "return\n\(luaRepresentation())"
     }
 
     func luaRepresentation() -> String {
@@ -51,12 +51,21 @@ extension Dictionary where Key == AnyHashable, Value == Any {
             }
             let valueString = if let value = value as? [AnyHashable: Any] {
                 value.luaRepresentation()
+            } else if let value = value as? String {
+                "\"\(value.escapeQuotes())\""
             } else {
-                "\"\(value)\""
+                "\(value)"
             }
             return [keyString, valueString].joined(separator: "=")
         }
         return "{" + keyValues.joined(separator: ",") + "}"
+    }
+}
+
+extension String {
+
+    func escapeQuotes() -> String {
+        replacingOccurrences(of: "\"", with: "\\\"")
     }
 }
 
@@ -97,6 +106,21 @@ extension Data {
             return nil
         }
         self = decompressedData
+    }
+
+    func compress() -> Data? {
+        let bufferSize = count
+        var outputBuffer = [UInt8](repeating: 0, count: bufferSize)
+
+        let compressedSize = withUnsafeBytes { inputPointer -> Int in
+            return compression_encode_buffer(&outputBuffer, outputBuffer.count, inputPointer.baseAddress!.assumingMemoryBound(to: UInt8.self), count, nil, COMPRESSION_ZLIB)
+        }
+
+        return if compressedSize > 0 {
+            Data(bytes: outputBuffer, count: compressedSize)
+        } else {
+            nil
+        }
     }
 
     func decompress() -> Data? {

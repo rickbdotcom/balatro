@@ -33,7 +33,10 @@ struct EditSave: ParsableCommand {
             jkrDictionary["GAME"] = game
         }
 
-        let out = URL(fileURLWithPath: "/Users/2501156/Desktop/out.lua")
-        try jkrDictionary.convertToLua().write(to: out, atomically: true, encoding: .utf8)
+        try tjkrDictionary
+            .convertToLua()
+            .data(using: .utf8)?
+            .compress()?
+            .write(to: url)
     }
 }
