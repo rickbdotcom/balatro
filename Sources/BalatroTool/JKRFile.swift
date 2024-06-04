@@ -12,9 +12,7 @@ import Lua
 extension Dictionary where Key == AnyHashable, Value == Any {
 
     init(contentsOfJKR url: URL) throws {
-        let inputData = try Data(contentsOf: url)
-        guard let decompressedData = inputData.decompress(),
-              let code = String(data: decompressedData, encoding: .utf8) else {
+        guard let code = try String(contentsOfJKR: url) else {
             self = [:]
             return
         }
@@ -39,10 +37,68 @@ extension Dictionary where Key == AnyHashable, Value == Any {
             .data(withJSONObject: convertToStringKeys(), options: .prettyPrinted)
             .write(to: url)
     }
+
+    func convertToLua() -> String {
+        "return \(luaRepresentation())"
+    }
+
+    func luaRepresentation() -> String {
+        let keyValues = map { key, value -> String in
+            let keyString = if let key = key as? String {
+                "[\"\(key)\"]"
+            } else {
+                "[\(key)]"
+            }
+            let valueString = if let value = value as? [AnyHashable: Any] {
+                value.luaRepresentation()
+            } else {
+                "\"\(value)\""
+            }
+            return [keyString, valueString].joined(separator: "=")
+        }
+        return "{" + keyValues.joined(separator: ",") + "}"
+    }
+}
+
+extension Dictionary where Key == String, Value == Any {
+
+    func convertToIntKeys() -> [AnyHashable: Any] {
+        Dictionary<AnyHashable, Any>(uniqueKeysWithValues: map { key, value in
+            var luaKey: AnyHashable = key
+            if let intKey = Int(key) {
+                luaKey = intKey
+            }
+            return if let value = value as? [String: Any] {
+                (luaKey, value.convertToIntKeys())
+            } else {
+                (luaKey, value)
+            }
+        })
+    }
+}
+
+
+extension String {
+
+    init?(contentsOfJKR url: URL) throws {
+        guard let decompressedData = try Data(contentsOfJKR: url),
+              let string = String(data: decompressedData, encoding: .utf8) else {
+            return nil
+        }
+        self = string
+    }
 }
 
 extension Data {
-    
+
+    init?(contentsOfJKR url: URL) throws {
+        let inputData = try Data(contentsOf: url)
+        guard let decompressedData = inputData.decompress() else {
+            return nil
+        }
+        self = decompressedData
+    }
+
     func decompress() -> Data? {
         let bufferSize = count * 10
         var outputBuffer = [UInt8](repeating: 0, count: bufferSize)
