@@ -8,7 +8,7 @@
 import Foundation
 import ArgumentParser
 
-struct EditSave: ParsableCommand {
+struct EditSave: AsyncParsableCommand {
     static var configuration: CommandConfiguration {
         .init(
             commandName: "edit-save",
@@ -16,13 +16,13 @@ struct EditSave: ParsableCommand {
         )
     }
 
-    @Option(help: "profile")
+    @Option(help: "Profile to edit")
     var profile: String?
 
-    @Option(help: "dollars")
+    @Option(help: "Set the amount of money")
     var dollars: String?
 
-    func run() throws {
+    func run() async throws {
         let profile = self.profile ?? "1"
         let url = FileSystem().saveGameURL(for: profile)
         var jkrDictionary = try Dictionary(contentsOfJKR: url)

@@ -8,7 +8,7 @@
 import Foundation
 import ArgumentParser
 
-struct JKR2Lua: ParsableCommand {
+struct JKR2Lua: AsyncParsableCommand {
     static var configuration: CommandConfiguration {
         .init(
             commandName: "jkr2lua",
@@ -31,6 +31,6 @@ struct JKR2Lua: ParsableCommand {
     }
 
     func defaultSaveFileURL() -> URL {
-        FileSystem().saveGameURL()
+        FileSystem().saveGameURL(for: nil)
     }
 }

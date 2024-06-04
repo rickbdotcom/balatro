@@ -20,23 +20,31 @@ class FileSystem {
         self.baseURL = baseURL
     }
 
-    func profileDirectory(for profile: String = "1") -> URL {
-        URL(fileURLWithPath: profile, relativeTo: baseURL)
+    func profileDirectory(for profile: String?) -> URL {
+        URL(fileURLWithPath: profile ?? "1", relativeTo: baseURL)
     }
 
-    func saveGameURL(for profile: String = "1") -> URL {
+    func saveGameURL(for profile: String?) -> URL {
         URL(fileURLWithPath: "save.jkr", relativeTo: profileDirectory(for: profile))
     }
 
-    func metaURL(for profile: String = "1") -> URL {
+    func metaURL(for profile: String?) -> URL {
         URL(fileURLWithPath: "meta.jkr", relativeTo: profileDirectory(for: profile))
     }
     
-    func profileURL(for profile: String = "1") -> URL {
+    func profileURL(for profile: String?) -> URL {
         URL(fileURLWithPath: "profile.jkr", relativeTo: profileDirectory(for: profile))
     }
 
     func settingsURL() -> URL {
         URL(fileURLWithPath: "settings.jkr", relativeTo: baseURL)
+    }
+
+    func backupDirectory(for profile: String?) -> URL {
+        URL(fileURLWithPath: "bak", relativeTo: profileDirectory(for: profile))
+    }
+
+    func createBackupDirectory(for profile: String?) throws {
+        try FileManager.default.createDirectory(at: backupDirectory(for: profile), withIntermediateDirectories: true)
     }
 }
