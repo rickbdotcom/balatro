@@ -20,6 +20,8 @@ struct Backup: AsyncParsableCommand {
     var profile: String?
 
     func run() async throws {
+        print("Monitoring save game for backup...")
+
         let fileSystem = FileSystem()
 
         try fileSystem.createBackupDirectory(for: profile)
@@ -40,6 +42,9 @@ struct Backup: AsyncParsableCommand {
         let jkrDict = try Dictionary(contentsOfJKR: saveGameURL)
         
         let game = jkrDict["GAME"] as? [AnyHashable: Any]
+        
+        let pseudorandom = game?["pseudorandom"] as? [AnyHashable: Any]
+        let seed = pseudorandom?["seed"] as? String ?? ""
 
         let round_scores = game?["round_scores"] as? [AnyHashable: Any]
         let furthest_ante = round_scores?["furthest_ante"]  as? [AnyHashable: Any]
@@ -48,8 +53,11 @@ struct Backup: AsyncParsableCommand {
         let round = game?["round"]  as? Int ?? 0
 
         let dateString = String(Int(Date.timeIntervalSinceReferenceDate))
-        let fileName = "\(dateString)_0\(ante)_0\(round).jkr"
+        let fileName = "\(seed)_\(dateString)_0\(ante)_0\(round).jkr"
         let dstURL = URL(fileURLWithPath: fileName, relativeTo: backupDirectory)
         try FileManager.default.copyItem(at: saveGameURL, to: dstURL)
     }
 }
+
+
+

@@ -11,6 +11,7 @@ struct BalatroTool: AsyncParsableCommand {
             JKR2Lua.self,
             EditSave.self,
             Backup.self
-        ]
+        ],
+        defaultSubcommand: Backup.self
     )
 }
