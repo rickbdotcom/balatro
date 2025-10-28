@@ -16,20 +16,38 @@ struct Backup: AsyncParsableCommand {
         )
     }
 
+    @Flag(help: "Clear all backups")
+    var clear: Bool = false
+
     @Option(help: "Profile to backup")
     var profile: String?
 
-    func run() async throws {
-        print("Monitoring save game for backup...")
+    @Option(help: "Restore backup")
+    var restore: String?
 
+    func run() async throws {
         let fileSystem = FileSystem()
 
-        try fileSystem.createBackupDirectory(for: profile)
-        let saveGameURL = fileSystem.saveGameURL(for: profile)
+        if clear {
+            try fileSystem.removeBackups(for: profile)
+        } else if let restore {
+            if restore.prefix(1) == "+" {
+                if let index = Int(restore.suffix(from: restore.index(restore.startIndex, offsetBy: 1))) {
+                    try fileSystem.restore(index, for: profile)
+                }
+            } else {
+                try fileSystem.restore(restore, for: profile)
+            }
+        } else {
+            print("Monitoring save game for backup...")
 
-        let monitor = try FileMonitor(url: saveGameURL)
-        for try await _ in monitor.events {
-            try backup()
+            try fileSystem.createBackupDirectory(for: profile)
+            let saveGameURL = fileSystem.saveGameURL(for: profile)
+
+            let monitor = try FileMonitor(url: saveGameURL)
+            for try await _ in monitor.events {
+                try backup()
+            }
         }
     }
 
@@ -56,6 +74,8 @@ struct Backup: AsyncParsableCommand {
         let fileName = "\(seed)_\(dateString)_0\(ante)_0\(round).jkr"
         let dstURL = URL(fileURLWithPath: fileName, relativeTo: backupDirectory)
         try FileManager.default.copyItem(at: saveGameURL, to: dstURL)
+
+        print(fileName)
     }
 }
 
