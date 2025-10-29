@@ -84,7 +84,7 @@ extension FileManager {
 extension String {
 
     func jkr() -> String {
-        if hasPrefix(".jkr") {
+        if hasSuffix(".jkr") {
             self
         } else {
             self + ".jkr"
